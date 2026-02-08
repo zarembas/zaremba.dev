@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sebastian Zaremba — My Mac Toolbox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a26;--border:#2a2a3a;
+  --text:#e4e4ef;--text-muted:#8888a0;--accent:#6c63ff;--accent2:#00d4aa;
+  --accent3:#ff6b9d;--radius:16px;--shadow:0 4px 24px rgba(0,0,0,.4);
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased}
+
+/* --- Noise overlay --- */
+body::before{content:'';position:fixed;inset:0;opacity:.03;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:9999}
+
+/* --- Glow blobs --- */
+.glow{position:fixed;border-radius:50%;filter:blur(120px);opacity:.12;pointer-events:none;z-index:0}
+.glow-1{width:600px;height:600px;background:var(--accent);top:-200px;left:-100px}
+.glow-2{width:500px;height:500px;background:var(--accent2);bottom:-150px;right:-100px}
+.glow-3{width:400px;height:400px;background:var(--accent3);top:40%;left:50%;transform:translate(-50%,-50%)}
+
+/* --- Layout --- */
+.container{max-width:1200px;margin:0 auto;padding:0 24px;position:relative;z-index:1}
+
+/* --- Hero --- */
+.hero{min-height:80vh;display:flex;flex-direction:column;justify-content:center;padding:80px 0 60px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:6px 16px 6px 8px;font-size:.8rem;color:var(--text-muted);margin-bottom:32px;width:fit-content}
+.hero-badge .dot{width:8px;height:8px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(2.8rem,6vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;margin-bottom:24px}
+.hero h1 .gradient{background:linear-gradient(135deg,var(--accent),var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-bio{max-width:720px;font-size:1.1rem;color:var(--text-muted);line-height:1.8;margin-bottom:40px}
+.hero-stats{display:flex;gap:48px;flex-wrap:wrap}
+.stat{display:flex;flex-direction:column}
+.stat-num{font-size:2rem;font-weight:800;font-family:'JetBrains Mono',monospace;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-size:.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+
+/* --- Filter bar --- */
+.filter-bar{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 0;margin-bottom:48px}
+.filter-bar .container{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.filter-btn{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:8px 18px;border-radius:100px;font-size:.82rem;font-family:inherit;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.search-box{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:8px 18px;border-radius:100px;font-size:.82rem;font-family:inherit;outline:none;width:220px;margin-left:auto;transition:border-color .2s}
+.search-box::placeholder{color:var(--text-muted)}
+.search-box:focus{border-color:var(--accent)}
+
+/* --- Grid --- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;padding-bottom:120px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:28px;transition:all .3s ease;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;opacity:0;background:linear-gradient(135deg,rgba(108,99,255,.06),rgba(0,212,170,.06));transition:opacity .3s}
+.card:hover{border-color:rgba(108,99,255,.4);transform:translateY(-3px);box-shadow:var(--shadow)}
+.card:hover::before{opacity:1}
+.card-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;z-index:1}
+.card-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.card-title{font-size:1.05rem;font-weight:700;letter-spacing:-.01em}
+.card-tag{display:inline-block;font-size:.68rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:100px;margin-top:4px;border:1px solid}
+.card-desc{font-size:.9rem;color:var(--text-muted);line-height:1.75;position:relative;z-index:1}
+
+/* Tag colors */
+.tag-dev{color:#6c63ff;border-color:rgba(108,99,255,.3);background:rgba(108,99,255,.08)}
+.tag-productivity{color:#00d4aa;border-color:rgba(0,212,170,.3);background:rgba(0,212,170,.08)}
+.tag-media{color:#ff6b9d;border-color:rgba(255,107,157,.3);background:rgba(255,107,157,.08)}
+.tag-utility{color:#ffb347;border-color:rgba(255,179,71,.3);background:rgba(255,179,71,.08)}
+.tag-security{color:#4fc3f7;border-color:rgba(79,195,247,.3);background:rgba(79,195,247,.08)}
+.tag-communication{color:#ce93d8;border-color:rgba(206,147,216,.3);background:rgba(206,147,216,.08)}
+.tag-ai{color:#e0e0e0;border-color:rgba(224,224,224,.3);background:rgba(224,224,224,.08)}
+.tag-network{color:#4dd0e1;border-color:rgba(77,208,225,.3);background:rgba(77,208,225,.08)}
+
+/* --- Footer --- */
+.footer{text-align:center;padding:48px 0;border-top:1px solid var(--border);font-size:.82rem;color:var(--text-muted)}
+
+/* --- Responsive --- */
+@media(max-width:600px){
+  .hero h1{font-size:2.2rem}
+  .hero-stats{gap:24px}
+  .grid{grid-template-columns:1fr}
+  .filter-bar .container{justify-content:center}
+  .search-box{width:100%;margin-left:0;order:-1}
+}
+
+/* --- Animations --- */
+.card{opacity:0;transform:translateY(20px);animation:fadeUp .5s ease forwards}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.card:nth-child(1){animation-delay:.02s}.card:nth-child(2){animation-delay:.04s}.card:nth-child(3){animation-delay:.06s}
+.card:nth-child(4){animation-delay:.08s}.card:nth-child(5){animation-delay:.1s}.card:nth-child(6){animation-delay:.12s}
+.card:nth-child(7){animation-delay:.14s}.card:nth-child(8){animation-delay:.16s}.card:nth-child(9){animation-delay:.18s}
+</style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="glow glow-3"></div>
+
+<!-- ========== HERO ========== -->
+<section class="hero">
+<div class="container">
+  <div class="hero-badge"><span class="dot"></span> zaremba.dev</div>
+  <h1>Sebastian Zaremba's<br><span class="gradient">Mac Toolbox</span></h1>
+  <p class="hero-bio">
+    I'm a toolsmith. Every app on this machine has earned its spot through daily use — nothing installed "just in case." I like my systems fast, private, and observable, and I automate anything I'd otherwise have to do twice. This is what's currently on my machine.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">44</span><span class="stat-label">Applications</span></div>
+    <div class="stat"><span class="stat-num">8</span><span class="stat-label">Categories</span></div>
+    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Third-party</span></div>
+  </div>
+</div>
+</section>
+
+<!-- ========== FILTER BAR ========== -->
+<div class="filter-bar">
+<div class="container">
+  <button class="filter-btn active" data-filter="all">All</button>
+  <button class="filter-btn" data-filter="dev">Dev</button>
+  <button class="filter-btn" data-filter="productivity">Productivity</button>
+  <button class="filter-btn" data-filter="utility">Utility</button>
+  <button class="filter-btn" data-filter="security">Security</button>
+  <button class="filter-btn" data-filter="media">Media</button>
+  <button class="filter-btn" data-filter="communication">Communication</button>
+  <button class="filter-btn" data-filter="ai">AI</button>
+  <button class="filter-btn" data-filter="network">Network</button>
+  <input type="text" class="search-box" placeholder="Search apps…" id="search">
+</div>
+</div>
+
+<!-- ========== APP GRID ========== -->
+<div class="container">
+<div class="grid" id="grid">
+
+  <!-- AppCleaner -->
+  <div class="card" data-category="utility" data-name="appcleaner">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🧹</div>
+      <div><div class="card-title">AppCleaner</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">AppCleaner is a small but mighty uninstaller that does what macOS should do natively — fully remove applications along with all their scattered preference files, caches, and support folders. Instead of just dragging an app to the trash and leaving behind megabytes of orphaned data, AppCleaner hunts down every associated file across the system and lets you wipe the slate clean in one sweep. It's the kind of invisible housekeeping tool that keeps a Mac lean over years of use.</p>
+  </div>
+
+  <!-- Bartender 6 -->
+  <div class="card" data-category="utility" data-name="bartender 6">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🍸</div>
+      <div><div class="card-title">Bartender 6</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Bartender is the definitive menu bar organizer for power users who collect system utilities the way some people collect browser tabs. It tucks away less-used icons into a hidden secondary bar, lets you rearrange and group items exactly how you like, and can show icons only when they update. For someone running iStat Menus, MeetingBar, Doll, and a dozen other tray apps simultaneously, Bartender is the only thing standing between a functional workspace and visual chaos.</p>
+  </div>
+
+  <!-- Brave Browser -->
+  <div class="card" data-category="security" data-name="brave browser">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(79,195,247,.12)">🦁</div>
+      <div><div class="card-title">Brave Browser</div><span class="card-tag tag-security">Security</span></div>
+    </div>
+    <p class="card-desc">Brave is a Chromium-based browser that strips out the surveillance infrastructure of modern web browsing. It blocks ads and trackers by default, nukes cookie banners, and offers a built-in Tor mode for when the regular private window isn't private enough. For a developer, it provides the full Chrome DevTools experience while being noticeably faster on bloated sites — because it simply refuses to load the bloat. It's the pragmatic choice for someone who wants Chrome compatibility without the Google panopticon.</p>
+  </div>
+
+  <!-- Bruno -->
+  <div class="card" data-category="dev" data-name="bruno">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">📡</div>
+      <div><div class="card-title">Bruno</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">Bruno is an open-source API client that stores collections as plain files on your filesystem instead of locking them in a proprietary cloud. This means your API requests live right alongside your code, can be committed to Git, reviewed in pull requests, and diffed meaningfully. It's a direct challenge to Postman's cloud-first model, built for developers who believe their API collections are source code and should be treated as such — versioned, portable, and owned entirely by the team.</p>
+  </div>
+
+  <!-- Claude -->
+  <div class="card" data-category="ai" data-name="claude">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(224,224,224,.12)">🤖</div>
+      <div><div class="card-title">Claude</div><span class="card-tag tag-ai">AI</span></div>
+    </div>
+    <p class="card-desc">Claude is Anthropic's AI assistant, available as a native Mac app that lives a keyboard shortcut away from whatever you're working on. It excels at nuanced reasoning, long-form writing, code generation, and thoughtful analysis — positioning itself as the assistant that thinks before it speaks. The desktop app provides a persistent, distraction-free interface for conversations that go deeper than a quick search, making it a natural companion for developers who regularly rubber-duck with an intelligence that actually talks back.</p>
+  </div>
+
+  <!-- CleanShot X -->
+  <div class="card" data-category="productivity" data-name="cleanshot x">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">📸</div>
+      <div><div class="card-title">CleanShot X</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">CleanShot X replaces macOS's built-in screenshot tool with something that understands how people actually share visual information in 2025. It captures screens, scrolling content, and screen recordings, then drops a floating thumbnail where you can annotate, blur sensitive data, add arrows, or copy to clipboard — all before the image ever touches your filesystem. Its cloud upload feature generates instant shareable links, making it indispensable for bug reports, design feedback, and documentation workflows.</p>
+  </div>
+
+  <!-- CotEditor -->
+  <div class="card" data-category="dev" data-name="coteditor">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">📝</div>
+      <div><div class="card-title">CotEditor</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">CotEditor is a lightweight, native macOS text editor that launches instantly and feels right at home on the platform. It supports syntax highlighting for dozens of languages, regex find-and-replace, split views, and custom themes — all without the overhead of an Electron wrapper. It's the kind of editor you reach for when VS Code feels like overkill: quick config file edits, reading logs, tweaking a script. Think of it as the screwdriver in a toolbox full of power drills.</p>
+  </div>
+
+  <!-- Cotypist -->
+  <div class="card" data-category="ai" data-name="cotypist">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(224,224,224,.12)">⌨️</div>
+      <div><div class="card-title">Cotypist</div><span class="card-tag tag-ai">AI</span></div>
+    </div>
+    <p class="card-desc">Cotypist brings AI-powered text generation directly into any text field on your Mac through system-wide keyboard shortcuts. Rather than context-switching to a chat interface, you trigger it inline wherever you're typing — emails, code comments, Slack messages, documents — and it generates, rewrites, or completes text on the spot. It's the frictionless AI layer that sits between your thoughts and your keystrokes, designed for people who want assistance without leaving their current workflow.</p>
+  </div>
+
+  <!-- DaisyDisk -->
+  <div class="card" data-category="utility" data-name="daisydisk">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🌻</div>
+      <div><div class="card-title">DaisyDisk</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">DaisyDisk presents your disk usage as a gorgeous interactive sunburst chart that makes it immediately obvious where your storage went. You can drill into any segment, preview files, and drag space hogs to a collection area for batch deletion. It turns the tedious chore of freeing disk space into something almost enjoyable, scanning entire volumes in seconds with a visual language that's far more intuitive than any terminal command or system settings panel could offer.</p>
+  </div>
+
+  <!-- Debookee -->
+  <div class="card" data-category="network" data-name="debookee">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(77,208,225,.12)">🔍</div>
+      <div><div class="card-title">Debookee</div><span class="card-tag tag-network">Network</span></div>
+    </div>
+    <p class="card-desc">Debookee is a network traffic analyzer that intercepts and decodes traffic on your local network with a clean macOS-native interface. It can monitor HTTP, HTTPS, TCP, and DNS requests from any device on the same network — including phones and IoT gadgets that you can't install packet sniffers on. For a developer debugging API calls from mobile apps or diagnosing mysterious network behavior, it bridges the gap between Wireshark's power and the simplicity of just wanting to see what's going over the wire.</p>
+  </div>
+
+  <!-- Doll -->
+  <div class="card" data-category="utility" data-name="doll">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🔔</div>
+      <div><div class="card-title">Doll</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Doll brings iOS-style notification badges to your Mac's Dock, showing unread counts directly on app icons so you can glance at your Dock and know exactly which apps need attention. It's a deceptively simple concept that macOS inexplicably handles poorly for most third-party apps. Doll fills that gap with minimal overhead, giving you ambient awareness of pending notifications without the interruption of banners or the noise of constantly checking individual apps.</p>
+  </div>
+
+  <!-- Duplicate File Finder -->
+  <div class="card" data-category="utility" data-name="duplicate file finder">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">📂</div>
+      <div><div class="card-title">Duplicate File Finder</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Duplicate File Finder scans your drives for identical files that have accumulated through backups, downloads, and project sprawl. It compares files byte-by-byte to find true duplicates — not just similar names — and presents them with enough context to confidently decide what to keep. Over years of development work with node_modules, build artifacts, and media assets scattered across project folders, duplicates silently consume surprising amounts of space. This tool reclaims it systematically.</p>
+  </div>
+
+  <!-- Finicky -->
+  <div class="card" data-category="utility" data-name="finicky">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🌐</div>
+      <div><div class="card-title">Finicky</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Finicky lets you define rules for which browser opens which links, configured through a JavaScript file that feels natural to any developer. Meeting links open in your calendar-linked browser, work URLs route to your work profile, personal links go to Brave, and documentation opens wherever you prefer. It replaces macOS's crude "one default browser" setting with a programmable routing layer, solving the very real annoyance of multi-browser workflows without any GUI overhead.</p>
+  </div>
+
+  <!-- IINA -->
+  <div class="card" data-category="media" data-name="iina">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,107,157,.12)">▶️</div>
+      <div><div class="card-title">IINA</div><span class="card-tag tag-media">Media</span></div>
+    </div>
+    <p class="card-desc">IINA is a modern, open-source media player designed from the ground up for macOS. Built on the mpv engine, it plays virtually any format you throw at it — MKV, FLAC, 4K HDR, subtitles in every encoding — all wrapped in a beautiful native interface that respects macOS conventions like dark mode, Touch Bar, and picture-in-picture. It's what QuickTime Player would be if Apple cared about codec support, and what VLC would be if VLC cared about design.</p>
+  </div>
+
+  <!-- iStat Menus -->
+  <div class="card" data-category="utility" data-name="istat menus">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">📊</div>
+      <div><div class="card-title">iStat Menus</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">iStat Menus puts a real-time dashboard of your Mac's vital signs directly in the menu bar — CPU usage, memory pressure, disk activity, network throughput, fan speeds, sensor temperatures, and battery health, all in compact, customizable widgets. For developers running Docker containers, compiling code, and juggling heavy applications, it provides the ambient awareness to know when your machine is struggling before it starts to lag. It's observability for your hardware, always one glance away.</p>
+  </div>
+
+  <!-- iTerm -->
+  <div class="card" data-category="dev" data-name="iterm">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">💻</div>
+      <div><div class="card-title">iTerm</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">iTerm is the terminal emulator that most macOS developers adopt within their first week and never leave. It offers split panes, search across scrollback, autocomplete, triggers, profiles for different environments, and a hotkey window that drops down from the top of your screen like a command console. The built-in tmux integration, shell integration, and Python scripting API make it endlessly customizable. Terminal.app does the basics — iTerm does everything else.</p>
+  </div>
+
+  <!-- Joplin -->
+  <div class="card" data-category="productivity" data-name="joplin">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">📒</div>
+      <div><div class="card-title">Joplin</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">Joplin is an open-source note-taking application that supports Markdown, end-to-end encryption, and syncing across devices through your choice of cloud provider — Dropbox, OneDrive, Nextcloud, or your own WebDAV server. It's the note-taking tool for people who left Evernote over privacy concerns and didn't want to hand their thoughts to yet another proprietary platform. With notebook hierarchies, tagging, full-text search, and a plugin ecosystem, it scales from quick scratchpad to full knowledge base.</p>
+  </div>
+
+  <!-- Latest -->
+  <div class="card" data-category="utility" data-name="latest">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">🔄</div>
+      <div><div class="card-title">Latest</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Latest is a tiny open-source utility that checks which of your installed apps have updates available, displaying them in a clean list with one-click update links. It works with apps from the Mac App Store, Homebrew Cask, and apps that use Sparkle for self-updating. In a world where every app wants its own auto-updater daemon running in the background, Latest gives you a single, on-demand overview so you can update on your own terms, when you're ready.</p>
+  </div>
+
+  <!-- LuLu -->
+  <div class="card" data-category="security" data-name="lulu">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(79,195,247,.12)">🛡️</div>
+      <div><div class="card-title">LuLu</div><span class="card-tag tag-security">Security</span></div>
+    </div>
+    <p class="card-desc">LuLu is a free, open-source macOS firewall created by Objective-See that alerts you whenever an application tries to make an outbound network connection. Unlike macOS's built-in firewall which only filters inbound traffic, LuLu catches apps phoning home, telemetry beacons, and unexpected network activity from processes you didn't realize were communicating. It's a transparency tool as much as a security one — letting you see and control exactly which applications are talking to the internet and to whom.</p>
+  </div>
+
+  <!-- MacBot -->
+  <div class="card" data-category="productivity" data-name="macbot">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">🤖</div>
+      <div><div class="card-title">MacBot</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">MacBot is a macOS automation tool that lets you create bots and workflows to handle repetitive tasks on your machine. Whether it's clicking through a sequence of UI elements, processing files in batch, or triggering actions based on schedules and conditions, MacBot scripts the tedium away. For a developer who already automates server-side workflows, it extends that same philosophy to the desktop — because manually repeating the same five clicks three times a day is an engineering problem, not a habit.</p>
+  </div>
+
+  <!-- MacUpdater -->
+  <div class="card" data-category="utility" data-name="macupdater">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">⬆️</div>
+      <div><div class="card-title">MacUpdater</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">MacUpdater takes a more comprehensive approach to app updates than most alternatives, tracking update availability for virtually every application installed on your Mac — including obscure tools that don't use standard update frameworks. It maintains its own database of version histories and download sources, and can even update some apps automatically. Having both Latest and MacUpdater signals a user who genuinely cares about keeping their system current and secure without tolerating background auto-updaters.</p>
+  </div>
+
+  <!-- MeetingBar -->
+  <div class="card" data-category="productivity" data-name="meetingbar">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">📅</div>
+      <div><div class="card-title">MeetingBar</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">MeetingBar puts your next calendar event directly in the menu bar with a one-click button to join the associated video call — Zoom, Meet, Teams, or whatever your team uses. It eliminates the daily ritual of opening your calendar, finding the meeting, copying the link, and opening the browser. When you're in back-to-back meetings across multiple platforms, that friction adds up. MeetingBar reduces "join a call" to a single click or keyboard shortcut, which over a work week saves real sanity.</p>
+  </div>
+
+  <!-- Microsoft OneNote -->
+  <div class="card" data-category="productivity" data-name="microsoft onenote">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">📓</div>
+      <div><div class="card-title">Microsoft OneNote</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">OneNote is Microsoft's free-form digital notebook that acts as an infinite canvas for notes, clippings, drawings, and embedded files organized into sections and pages. Its strength lies in its freeform nature — you can place content anywhere on the page, mix typed text with handwriting, embed spreadsheets, and clip web content. Having both Joplin and OneNote suggests different workflows for different contexts: Joplin for Markdown-driven personal knowledge, OneNote for collaborative or freeform notes within a Microsoft-centric team.</p>
+  </div>
+
+  <!-- Microsoft Outlook -->
+  <div class="card" data-category="communication" data-name="microsoft outlook">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(206,147,216,.12)">📧</div>
+      <div><div class="card-title">Microsoft Outlook</div><span class="card-tag tag-communication">Communication</span></div>
+    </div>
+    <p class="card-desc">Outlook is Microsoft's enterprise email and calendar powerhouse, deeply integrated with the Microsoft 365 ecosystem. For developers working in organizations that run on Exchange or Microsoft 365, Outlook provides calendar scheduling, email management, and contact handling in a single application. The native macOS version has matured significantly, offering focused inbox, my-day views, and calendar integration that rivals its Windows counterpart. It's the professional communication backbone in a Microsoft-aligned workplace.</p>
+  </div>
+
+  <!-- NearDrop -->
+  <div class="card" data-category="utility" data-name="neardrop">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">📲</div>
+      <div><div class="card-title">NearDrop</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">NearDrop brings Google's Nearby Share protocol to macOS, letting you receive files wirelessly from Android devices — filling the gap Apple intentionally left by limiting AirDrop to its own ecosystem. For anyone who uses both an Android phone and a Mac, transferring photos, files, or links between them has traditionally meant email, messaging apps, or cable connections. NearDrop solves this with the same seamless tap-and-send experience that iPhone-to-Mac users take for granted.</p>
+  </div>
+
+  <!-- NordVPN -->
+  <div class="card" data-category="security" data-name="nordvpn">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(79,195,247,.12)">🔒</div>
+      <div><div class="card-title">NordVPN</div><span class="card-tag tag-security">Security</span></div>
+    </div>
+    <p class="card-desc">NordVPN provides encrypted tunneling through a global network of servers, shielding your traffic from ISP snooping, public WiFi threats, and geographic content restrictions. Beyond basic VPN functionality, it offers threat protection that blocks malware domains and trackers at the DNS level, meshnet for secure remote access to your own devices, and dedicated IP options. For a developer who may SSH into servers, access client environments, or work from cafés and airports, a reliable VPN is operational infrastructure, not a luxury.</p>
+  </div>
+
+  <!-- OpenMTP -->
+  <div class="card" data-category="utility" data-name="openmtp">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">📱</div>
+      <div><div class="card-title">OpenMTP</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">OpenMTP is a free, open-source Android file transfer application for macOS that replaces Google's abandoned and barely functional Android File Transfer. It provides a split-pane interface — Mac on one side, Android on the other — with drag-and-drop transfers, keyboard shortcuts, and support for large files that would choke the original tool. Combined with NearDrop, it confirms Sebastian's setup includes Android devices alongside the Mac, and he's built a solid bridge between both worlds.</p>
+  </div>
+
+  <!-- Perplexity -->
+  <div class="card" data-category="ai" data-name="perplexity">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(224,224,224,.12)">🔮</div>
+      <div><div class="card-title">Perplexity</div><span class="card-tag tag-ai">AI</span></div>
+    </div>
+    <p class="card-desc">Perplexity is an AI-powered search engine that answers questions by synthesizing information from across the web and citing its sources in real time. It sits somewhere between a traditional search engine and a conversational AI — you ask a question, it searches, reads, and distills the answer with linked references you can verify. For a developer who needs quick, sourced answers to technical questions without wading through SEO spam and blog filler, it's become a serious research accelerator.</p>
+  </div>
+
+  <!-- Plexamp -->
+  <div class="card" data-category="media" data-name="plexamp">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,107,157,.12)">🎵</div>
+      <div><div class="card-title">Plexamp</div><span class="card-tag tag-media">Media</span></div>
+    </div>
+    <p class="card-desc">Plexamp is a boutique music player built by the Plex team for people who still maintain their own music libraries. It connects to your Plex server and streams your personal collection with features that rival commercial services — sonic analysis for smart playlists, loudness leveling, gapless playback, and a beautiful waveform visualizer. Having both Plexamp and Spotify suggests someone who values the curated ownership of a personal library alongside the discovery and convenience of a streaming platform.</p>
+  </div>
+
+  <!-- PopClip -->
+  <div class="card" data-category="productivity" data-name="popclip">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">✂️</div>
+      <div><div class="card-title">PopClip</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">PopClip surfaces a floating toolbar whenever you select text, offering instant actions: copy, paste, search, translate, create a task, look up in a dictionary, format as code, send to an app — with hundreds of community extensions adding more. It's inspired by the iOS text selection popover but dramatically more powerful on macOS. The beauty is that it intercepts a moment where you've already made a decision (you selected something) and eliminates the next step of figuring out what to do with it.</p>
+  </div>
+
+  <!-- QSpace Pro -->
+  <div class="card" data-category="productivity" data-name="qspace pro">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">📁</div>
+      <div><div class="card-title">QSpace Pro</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">QSpace Pro is a multi-pane file manager for macOS that brings the dual-panel workflow of classic tools like Total Commander into a native, modern interface. You can have up to four panels open simultaneously, with tabs within each panel, built-in terminal, archive handling, cloud storage mounting, and batch rename tools. For developers who move files between projects, manage deployment artifacts, or simply find Finder's single-window approach limiting, QSpace Pro turns file management from a chore into a fluid workspace.</p>
+  </div>
+
+  <!-- Raycast -->
+  <div class="card" data-category="productivity" data-name="raycast">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">⚡</div>
+      <div><div class="card-title">Raycast</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">Raycast is a productivity launcher that replaces Spotlight and then makes you wonder how you ever lived without it. It's a command palette for your entire Mac — launching apps, running scripts, managing clipboard history, controlling Spotify, searching documentation, creating Jira tickets, translating text, and hundreds more actions through its extension store. With a hotkey press, your entire digital toolkit is a few keystrokes away. It's the kind of tool that fundamentally changes how you interact with your computer.</p>
+  </div>
+
+  <!-- ScreenMemory -->
+  <div class="card" data-category="productivity" data-name="screenmemory">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">🧠</div>
+      <div><div class="card-title">ScreenMemory</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">ScreenMemory continuously captures snapshots of your screen activity, building a searchable visual history of everything you've done on your Mac. Think of it as a time machine for your screen — when you can't remember which tab had that code snippet, what the error message said before you dismissed it, or which Slack channel someone mentioned that link in, ScreenMemory lets you scrub back through time and find it. It's digital photographic memory for the chronically context-switching developer.</p>
+  </div>
+
+  <!-- Spark -->
+  <div class="card" data-category="communication" data-name="spark">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(206,147,216,.12)">💌</div>
+      <div><div class="card-title">Spark</div><span class="card-tag tag-communication">Communication</span></div>
+    </div>
+    <p class="card-desc">Spark is an email client that intelligently prioritizes your inbox by sorting messages into categories — personal, notifications, newsletters — so the important mail rises to the top. It supports shared drafts, team email collaboration, send-later, follow-up reminders, and quick replies. Having both Spark and Outlook points to someone managing personal and work email separately: Outlook for the Microsoft-integrated workplace, Spark for everything else with a cleaner, more opinionated approach to inbox management.</p>
+  </div>
+
+  <!-- Spotify -->
+  <div class="card" data-category="media" data-name="spotify">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,107,157,.12)">🎧</div>
+      <div><div class="card-title">Spotify</div><span class="card-tag tag-media">Media</span></div>
+    </div>
+    <p class="card-desc">Spotify needs little introduction — it's the world's largest music streaming platform with over 100 million tracks, algorithmically curated playlists, podcasts, and social listening features. For a developer, the coding playlists, lo-fi stations, and focus music categories are the soundtrack to productive flow states. Paired with Raycast's Spotify extension for keyboard-driven control, it integrates seamlessly into a keyboard-centric workflow without ever needing to switch to the app itself.</p>
+  </div>
+
+  <!-- SubManager -->
+  <div class="card" data-category="productivity" data-name="submanager">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">💳</div>
+      <div><div class="card-title">SubManager</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">SubManager tracks all your recurring subscriptions and memberships in one place — streaming services, cloud storage, developer tools, SaaS platforms, gym memberships — giving you a clear overview of what you're paying monthly and annually. For a developer-power-user running NordVPN, Spotify, Plex, multiple AI tools, and who knows how many SaaS accounts, the cumulative cost of subscriptions can silently balloon. SubManager makes that spend visible and manageable with reminders before renewal dates.</p>
+  </div>
+
+  <!-- Super Productivity -->
+  <div class="card" data-category="productivity" data-name="super productivity">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(0,212,170,.12)">✅</div>
+      <div><div class="card-title">Super Productivity</div><span class="card-tag tag-productivity">Productivity</span></div>
+    </div>
+    <p class="card-desc">Super Productivity is an open-source task manager and time tracker that integrates with Jira, GitHub, and GitLab to pull in your issues alongside personal tasks. It combines a Pomodoro timer, timeboxing, daily planning, and idle detection into a single app that helps you understand where your work hours actually go. It's built for developers who want the time-tracking discipline of enterprise tools without the surveillance feeling, and who prefer their productivity system to be free, private, and self-hosted.</p>
+  </div>
+
+  <!-- TablePlus -->
+  <div class="card" data-category="dev" data-name="tableplus">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">🗄️</div>
+      <div><div class="card-title">TablePlus</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">TablePlus is a modern, native database GUI that supports PostgreSQL, MySQL, SQLite, Redis, MongoDB, and more in a single application. Its clean interface lets you browse tables, write and run queries with syntax highlighting, edit data inline, and manage multiple database connections with saved tabs. It commits changes in a review-before-execute workflow that prevents accidental data mutations. For a developer working with Rails and multiple database backends, TablePlus turns database interaction from a CLI chore into a visual, safe experience.</p>
+  </div>
+
+  <!-- The Unarchiver -->
+  <div class="card" data-category="utility" data-name="the unarchiver">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">📦</div>
+      <div><div class="card-title">The Unarchiver</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">The Unarchiver handles every archive format macOS's built-in Archive Utility can't — RAR, 7z, tar.gz, bz2, ISO, and dozens more — silently integrating with Finder so you never think about it. Double-click any archive, and it just works. It handles character encoding in filenames correctly (critical for archives from international sources), extracts into tidy folders, and costs nothing. It's the kind of utility that earns its place by being invisible until the one time you need it and it's already there.</p>
+  </div>
+
+  <!-- Theine -->
+  <div class="card" data-category="utility" data-name="theine">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(255,179,71,.12)">☕</div>
+      <div><div class="card-title">Theine</div><span class="card-tag tag-utility">Utility</span></div>
+    </div>
+    <p class="card-desc">Theine lives in your menu bar and does one thing perfectly: it keeps your Mac awake. Named after the stimulant in tea, it prevents sleep, screen dimming, and screensaver activation with a single click — essential during long-running deployments, presentations, screen shares, and those times when your Mac decides to nap mid-demo. It's a caffeine shot for your computer, with schedule support so you can set it and forget it during your working hours.</p>
+  </div>
+
+  <!-- Visual Studio Code -->
+  <div class="card" data-category="dev" data-name="visual studio code">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">🔧</div>
+      <div><div class="card-title">Visual Studio Code</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">VS Code is the text editor that ate the IDE market. With its extension ecosystem spanning every language, framework, and workflow imaginable, it's become the gravitational center of modern software development. IntelliSense, integrated terminal, Git integration, remote development over SSH, and a marketplace with over 50,000 extensions make it simultaneously lightweight and endlessly capable. Having both VS Code and Windsurf on the same machine suggests someone actively exploring how AI-native editors compare to the established champion.</p>
+  </div>
+
+  <!-- VNC Viewer -->
+  <div class="card" data-category="dev" data-name="vnc viewer">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">🖥️</div>
+      <div><div class="card-title">VNC Viewer</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">VNC Viewer by RealVNC provides remote desktop access to other machines — Linux servers, Windows workstations, Raspberry Pis, or other Macs — right from your screen. For a developer who manages servers, runs headless machines, or occasionally needs to help a colleague remotely, it's a reliable way to get a full graphical desktop session over the network. Combined with NordVPN for secure tunneling, it enables remote administration from anywhere without exposing VNC ports to the open internet.</p>
+  </div>
+
+  <!-- WiFi Explorer -->
+  <div class="card" data-category="network" data-name="wifi explorer">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(77,208,225,.12)">📡</div>
+      <div><div class="card-title">WiFi Explorer</div><span class="card-tag tag-network">Network</span></div>
+    </div>
+    <p class="card-desc">WiFi Explorer scans and visualizes every wireless network in your vicinity, displaying signal strength, channel utilization, noise levels, security protocols, and potential interference in real-time graphs. It's an essential diagnostic tool when your WiFi is underperforming — instantly revealing whether you're on a congested channel, competing with neighboring networks, or suffering from interference. For someone with Debookee already installed, WiFi Explorer completes the network diagnostics picture from radio layer to application layer.</p>
+  </div>
+
+  <!-- Windsurf -->
+  <div class="card" data-category="dev" data-name="windsurf">
+    <div class="card-head">
+      <div class="card-icon" style="background:rgba(108,99,255,.12)">🏄</div>
+      <div><div class="card-title">Windsurf</div><span class="card-tag tag-dev">Dev</span></div>
+    </div>
+    <p class="card-desc">Windsurf is an AI-native code editor built by Codeium that reimagines what an IDE looks like when AI assistance is a first-class feature rather than a bolted-on extension. It offers deep codebase understanding, multi-file editing through natural language, and an agentic "Cascade" mode that can plan and execute complex coding tasks across your project. Having Windsurf alongside VS Code signals a developer actively evaluating the next generation of AI-powered development environments against the current industry standard.</p>
+  </div>
+
+</div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer class="footer">
+  <div class="container">
+    <p>Sebastian Zaremba · zaremba.dev · 44 carefully chosen applications · Built with obsessive attention to tooling</p>
+  </div>
+</footer>
+
+<script>
+// Filter buttons
+const btns = document.querySelectorAll('.filter-btn');
+const cards = document.querySelectorAll('.card');
+const search = document.getElementById('search');
+
+function filterCards() {
+  const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+  const query = search.value.toLowerCase().trim();
+  cards.forEach(card => {
+    const matchCat = activeFilter === 'all' || card.dataset.category === activeFilter;
+    const matchSearch = !query || card.dataset.name.includes(query) || card.querySelector('.card-desc').textContent.toLowerCase().includes(query);
+    card.style.display = matchCat && matchSearch ? '' : 'none';
+  });
+}
+
+btns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    btns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards();
+  });
+});
+
+search.addEventListener('input', filterCards);
+</script>
+</body>
+</html>
